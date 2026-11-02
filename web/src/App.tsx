@@ -112,7 +112,7 @@ export function App() {
           <main>
             {tab === "judge" && <JudgeView api={api} />}
             {tab === "records" && <RecordsView api={api} products={products} reload={reload} />}
-            {tab === "insights" && <InsightsView api={api} products={products} />}
+            {tab === "insights" && <InsightsView api={api} />}
           </main>
         </>
       )}
