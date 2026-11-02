@@ -1,0 +1,28 @@
+# 3つのサービスとデータベースをまとめて起動する: docker compose up --build
+services:
+  db:
+    image: postgres:16
+    environment:
+      POSTGRES_DB: skin_match
+      POSTGRES_USER: skin_match
+      POSTGRES_PASSWORD: skin_match
+    ports: ["5432:5432"]
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U skin_match"]
+      interval: 3s
+      retries: 20
+
+  analyzer:
+    build: { context: ., dockerfile: analyzer/Dockerfile }
+    ports: ["8000:8000"]
+
+  api:
+    build: { context: ., dockerfile: api/Dockerfile }
+    environment:
+      DATABASE_URL: jdbc:postgresql://db:5432/skin_match
+      ANALYZER_URL: http://analyzer:8000
+      ALLOWED_ORIGINS: http://localhost:5173
+    ports: ["8080:8080"]
+    depends_on:
+      db: { condition: service_healthy }
+      analyzer: { condition: service_started }

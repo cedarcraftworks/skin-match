@@ -1,0 +1,99 @@
+{
+  "_comment": "判定ロジックの共通テストケース。Python（analyzer）とTypeScript（web のデモ用判定）が同じ結果を返すことをこのファイルで確かめる。",
+  "normalize": [
+    {
+      "name": "読点・カンマ・改行で分け、全角半角をそろえる",
+      "input": "水、ＢＧ,グリセリン\nヒアルロン酸Ｎａ",
+      "expected": ["水", "BG", "グリセリン", "ヒアルロン酸Na"]
+    },
+    {
+      "name": "別名を統一し、重複を取り除く",
+      "input": "精製水、ブチレングリコール、BG、ヒアルロン酸ナトリウム、セラミド3",
+      "expected": ["水", "BG", "ヒアルロン酸Na", "セラミドNP"]
+    },
+    {
+      "name": "医薬部外品の見出しと末尾の句点を取り除く",
+      "input": "有効成分：グリチルリチン酸ジカリウム　その他の成分：精製水、濃グリセリン。",
+      "expected": ["グリチルリチン酸2K", "水", "濃グリセリン"]
+    },
+    {
+      "name": "大文字小文字の違う別名もそろえる",
+      "input": "ヒアルロン酸NA、1,3-bg",
+      "expected": ["ヒアルロン酸Na", "BG"]
+    },
+    {
+      "name": "空の要素や空白だけの要素は無視する",
+      "input": " 、水、 , 、スクワラン 、",
+      "expected": ["水", "スクワラン"]
+    }
+  ],
+  "judge": [
+    {
+      "name": "合った物の半分以上にある成分は共通点、合わなかった物だけの成分は注意点",
+      "records": [
+        { "result": "good", "ingredients": ["水", "BG", "セラミドNP", "グリセリン"] },
+        { "result": "good", "ingredients": ["水", "セラミドNP", "スクワラン"] },
+        { "result": "good", "ingredients": ["水", "BG", "セラミドNP"] },
+        { "result": "bad", "ingredients": ["水", "エタノール", "BG"] },
+        { "result": "bad", "ingredients": ["水", "エタノール", "香料"] }
+      ],
+      "candidate": ["水", "セラミドNP", "エタノール", "スクワラン", "ナイアシンアミド", "セラミドNP"],
+      "expected": {
+        "goodTotal": 3,
+        "badTotal": 2,
+        "lowData": false,
+        "common": [
+          { "ingredient": "水", "goodCount": 3, "badCount": 2, "reason": "合った3個中3個に入っていた成分です" },
+          { "ingredient": "セラミドNP", "goodCount": 3, "badCount": 0, "reason": "合った3個中3個に入っていた成分です" }
+        ],
+        "caution": [
+          { "ingredient": "エタノール", "goodCount": 0, "badCount": 2, "reason": "合わなかった2個中2個に入っていて、合った物には入っていませんでした" }
+        ],
+        "mixed": [
+          { "ingredient": "スクワラン", "goodCount": 1, "badCount": 0, "reason": "合った3個中1個、合わなかった2個中0個に入っていました" }
+        ],
+        "unknown": [
+          { "ingredient": "ナイアシンアミド", "goodCount": 0, "badCount": 0, "reason": "まだ試したことのない成分です" }
+        ]
+      }
+    },
+    {
+      "name": "合った物が3個未満なら参考程度として扱う",
+      "records": [
+        { "result": "good", "ingredients": ["水", "BG"] },
+        { "result": "bad", "ingredients": ["水", "香料"] }
+      ],
+      "candidate": ["水", "香料"],
+      "expected": {
+        "goodTotal": 1,
+        "badTotal": 1,
+        "lowData": true,
+        "common": [
+          { "ingredient": "水", "goodCount": 1, "badCount": 1, "reason": "合った1個中1個に入っていた成分です" }
+        ],
+        "caution": [
+          { "ingredient": "香料", "goodCount": 0, "badCount": 1, "reason": "合わなかった1個中1個に入っていて、合った物には入っていませんでした" }
+        ],
+        "mixed": [],
+        "unknown": []
+      }
+    },
+    {
+      "name": "記録がなければすべて情報なし",
+      "records": [],
+      "candidate": ["水", "BG"],
+      "expected": {
+        "goodTotal": 0,
+        "badTotal": 0,
+        "lowData": true,
+        "common": [],
+        "caution": [],
+        "mixed": [],
+        "unknown": [
+          { "ingredient": "水", "goodCount": 0, "badCount": 0, "reason": "まだ試したことのない成分です" },
+          { "ingredient": "BG", "goodCount": 0, "badCount": 0, "reason": "まだ試したことのない成分です" }
+        ]
+      }
+    }
+  ]
+}
