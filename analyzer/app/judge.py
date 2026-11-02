@@ -8,7 +8,7 @@ from __future__ import annotations
 
 from collections.abc import Iterable
 from dataclasses import asdict, dataclass, field
-from typing import Literal
+from typing import Any, Literal
 
 Result = Literal["good", "bad"]
 
@@ -40,7 +40,7 @@ class Judgement:
     mixed: list[Finding] = field(default_factory=list)
     unknown: list[Finding] = field(default_factory=list)
 
-    def to_dict(self) -> dict:
+    def to_dict(self) -> dict[str, Any]:
         return asdict(self)
 
 

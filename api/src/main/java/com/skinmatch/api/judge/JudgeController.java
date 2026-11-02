@@ -3,16 +3,15 @@ package com.skinmatch.api.judge;
 import com.skinmatch.api.analyzer.AnalyzerClient;
 import com.skinmatch.api.analyzer.AnalyzerClient.Judgement;
 import com.skinmatch.api.analyzer.AnalyzerClient.UsageResult;
-import com.skinmatch.api.auth.AuthInterceptor;
 import com.skinmatch.api.product.ProductService;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 import java.util.List;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestAttribute;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.server.ResponseStatusException;
@@ -35,7 +34,7 @@ public class JudgeController {
 
     @PostMapping("/api/judge")
     public JudgeResponse judge(
-            @RequestAttribute(AuthInterceptor.USER_ID) long userId, @Valid @RequestBody JudgeRequest body) {
+            @AuthenticationPrincipal Long userId, @Valid @RequestBody JudgeRequest body) {
         List<String> candidate = analyzer.normalize(body.ingredientsText());
         if (candidate.isEmpty()) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "成分を読み取れませんでした");
@@ -45,7 +44,7 @@ public class JudgeController {
     }
 
     @GetMapping("/api/insights")
-    public Judgement insights(@RequestAttribute(AuthInterceptor.USER_ID) long userId) {
+    public Judgement insights(@AuthenticationPrincipal Long userId) {
         return analyzer.insights(products.judgedRecords(userId));
     }
 }

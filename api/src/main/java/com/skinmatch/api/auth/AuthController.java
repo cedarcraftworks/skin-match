@@ -42,6 +42,6 @@ public class AuthController {
     @PostMapping("/logout")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void logout(HttpServletRequest request) {
-        AuthInterceptor.tokenOf(request).ifPresent(auth::logout);
+        TokenAuthenticationFilter.tokenOf(request).ifPresent(auth::logout);
     }
 }

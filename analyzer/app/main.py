@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import os
 from pathlib import Path
-from typing import Literal
+from typing import Any, Literal
 
 from fastapi import FastAPI
 from pydantic import BaseModel, Field
@@ -40,7 +40,7 @@ class InsightsRequest(BaseModel):
 
 
 @app.get("/healthz")
-def healthz() -> dict:
+def healthz() -> dict[str, str]:
     return {"status": "ok"}
 
 
@@ -50,12 +50,12 @@ def post_normalize(req: NormalizeRequest) -> NormalizeResponse:
 
 
 @app.post("/judge")
-def post_judge(req: JudgeRequest) -> dict:
+def post_judge(req: JudgeRequest) -> dict[str, Any]:
     records = [Record(r.result, r.ingredients) for r in req.records]
     return judge(req.candidate, records).to_dict()
 
 
 @app.post("/insights")
-def post_insights(req: InsightsRequest) -> dict:
+def post_insights(req: InsightsRequest) -> dict[str, Any]:
     records = [Record(r.result, r.ingredients) for r in req.records]
     return insights(records).to_dict()

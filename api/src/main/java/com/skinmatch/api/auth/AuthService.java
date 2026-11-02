@@ -15,7 +15,7 @@ import java.util.Optional;
 import org.springframework.dao.DuplicateKeyException;
 import org.springframework.http.HttpStatus;
 import org.springframework.jdbc.core.simple.JdbcClient;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
@@ -30,15 +30,16 @@ import org.springframework.web.server.ResponseStatusException;
 public class AuthService {
 
     private final JdbcClient db;
-    private final BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();
+    private final PasswordEncoder encoder;
     private final SecureRandom random = new SecureRandom();
     private final Duration sessionLength;
     private final Clock clock;
 
     record UserRow(long id, String passwordHash) {}
 
-    public AuthService(JdbcClient db, AppProperties props) {
+    public AuthService(JdbcClient db, AppProperties props, PasswordEncoder encoder) {
         this.db = db;
+        this.encoder = encoder;
         this.sessionLength = Duration.ofDays(props.sessionDays());
         this.clock = Clock.systemUTC();
     }
