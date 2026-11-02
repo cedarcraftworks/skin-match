@@ -116,9 +116,7 @@ export class DemoApi implements Api {
   }
 
   private records(): UsageResult[] {
-    return this.products
-      .filter((p) => p.latestResult)
-      .map((p) => ({ result: p.latestResult!, ingredients: p.ingredients }));
+    return this.products.flatMap((p) => (p.latestResult ? [{ result: p.latestResult, ingredients: p.ingredients }] : []));
   }
 
   private clone<T>(x: T): T {

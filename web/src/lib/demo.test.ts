@@ -36,7 +36,8 @@ test("デモの例2は、別名を統一したうえで注意点が出る", asyn
 test("結果を記録すると判定に使われ、まだ判断していない物は使われない", async () => {
   const api = new DemoApi();
   const before = await api.insights();
-  const uv = (await api.listProducts()).find((p) => p.name === "UVミルク")!;
+  const uv = (await api.listProducts()).find((p) => p.name === "UVミルク");
+  assert.ok(uv);
   assert.equal(uv.latestResult, undefined);
 
   await api.addUsage(uv.id, { startedOn: "2026-10-30", result: "bad" });
